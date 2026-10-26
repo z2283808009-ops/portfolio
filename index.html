@@ -1,0 +1,940 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F8F9FA">
+<title>周子 · 买量视频设计师 · 视频作品集</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%232563EB'/%3E%3Cpath d='M25 20l20 12-20 12z' fill='white'/%3E%3C/svg%3E">
+<style>
+  /* ============================================================
+     作品集 H5 —— 白色极简 + 浅灰磨砂玻璃（Light Glassmorphism）
+     主色：#2563EB（深蓝） 标题：#0F172A 正文：#64748B
+     ============================================================ */
+  :root{
+    --bg:#F8F9FA;
+    --card-bg:rgba(255,255,255,0.75);
+    --ink:#0F172A;
+    --ink-2:#64748B;
+    --accent:#2563EB;
+    --line:rgba(15,23,42,0.07);
+    --radius:20px;
+    --shadow:0 10px 30px rgba(0,0,0,0.05);
+    --card-w:min(78vw,400px);
+    --edge:calc((100vw - var(--card-w)) / 2);
+    --header-h:66px;
+    --spring:cubic-bezier(0.34,1.56,0.64,1);
+    --ease-out:cubic-bezier(0.22,1,0.36,1);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","PingFang SC","HarmonyOS Sans SC","Microsoft YaHei","Noto Sans SC",sans-serif;
+    background:var(--bg);color:var(--ink);
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+    overflow-x:hidden;min-height:100%;
+  }
+  button{font-family:inherit}
+  img{-webkit-user-drag:none;user-select:none}
+
+  /* ---- 背景氛围光（呼应简历深蓝，低饱和不破坏白底） ---- */
+  .bg-glow{
+    position:fixed;inset:0;z-index:0;pointer-events:none;
+    background:
+      radial-gradient(55% 42% at 50% -6%, rgba(37,99,235,0.10), transparent 70%),
+      radial-gradient(45% 32% at 92% 26%, rgba(99,102,241,0.07), transparent 70%),
+      radial-gradient(40% 30% at 4% 70%, rgba(37,99,235,0.05), transparent 70%);
+  }
+
+  /* ============ 顶部 Header：固定 + 毛玻璃 ============ */
+  header{
+    position:fixed;top:0;left:0;right:0;z-index:50;
+    background:rgba(255,255,255,0.72);
+    -webkit-backdrop-filter:blur(20px) saturate(180%);
+    backdrop-filter:blur(20px) saturate(180%);
+    border-bottom:1px solid var(--line);
+  }
+  .header-inner{
+    height:var(--header-h);max-width:1080px;margin:0 auto;
+    padding:0 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;
+  }
+  .brand .name{font-size:17px;font-weight:700;letter-spacing:0.2px;line-height:1.2}
+  .brand .role{font-size:12px;color:var(--ink-2);margin-top:3px}
+  .contacts{display:flex;gap:8px}
+  .contact-btn{
+    display:inline-flex;align-items:center;gap:6px;padding:8px 13px;border-radius:999px;
+    border:1px solid rgba(15,23,42,0.08);background:rgba(255,255,255,0.65);
+    font-size:12.5px;font-weight:500;color:var(--ink-2);cursor:pointer;
+    transition:transform .2s var(--spring), color .25s, border-color .25s;
+    white-space:nowrap;
+  }
+  .contact-btn:hover{color:var(--accent);border-color:rgba(37,99,235,0.35)}
+  .contact-btn:active{transform:scale(0.93)}
+  .contact-btn svg{flex:0 0 auto}
+  @media (max-width:640px){
+    .contact-btn{padding:8px 10px}
+    .contact-btn .label{display:none}
+  }
+
+  /* ============ 主体 ============ */
+  main{position:relative;z-index:1;padding-top:var(--header-h)}
+
+  /* ---- 分类 Tab：横向滑动 + 下划线指示器 ---- */
+  .tabs{
+    position:sticky;top:0;z-index:40;
+    background:rgba(248,249,250,0.86);
+    -webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);
+    border-bottom:1px solid rgba(15,23,42,0.05);
+  }
+  .tabs-inner{
+    position:relative;display:flex;align-items:center;gap:2px;
+    max-width:1080px;margin:0 auto;padding:0 14px;
+    overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;
+  }
+  .tabs-inner::-webkit-scrollbar{display:none}
+  .tab{
+    position:relative;padding:13px 14px 15px;font-size:14.5px;font-weight:600;
+    color:var(--ink-2);background:none;border:none;cursor:pointer;white-space:nowrap;
+    transition:color .25s;flex:0 0 auto;
+  }
+  .tab:active{transform:scale(0.96)}
+  .tab.active{color:var(--ink)}
+  .tab-indicator{
+    position:absolute;bottom:8px;left:0;height:3px;border-radius:2px;
+    background:var(--accent);pointer-events:none;
+    transition:left .32s var(--spring), width .32s var(--spring);
+  }
+
+  /* ---- 卡片滑动区（核心）---- */
+  .carousel-section{padding:20px 0 30px}
+  .carousel{
+    display:flex;gap:24px;overflow-x:auto;cursor:grab;
+    scroll-snap-type:x mandatory;scroll-padding-inline:var(--edge);
+    padding-inline:var(--edge);
+    scrollbar-width:none;-webkit-overflow-scrolling:touch;touch-action:pan-x;
+  }
+  .carousel::-webkit-scrollbar{display:none}
+  .carousel.dragging{cursor:grabbing;scroll-behavior:auto}
+
+  .work-card{
+    flex:0 0 auto;width:var(--card-w);aspect-ratio:9/16;
+    scroll-snap-align:center;position:relative;
+    display:flex;flex-direction:column;overflow:hidden;cursor:pointer;
+    border-radius:24px;background:var(--card-bg);
+    -webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);
+    border:1px solid rgba(255,255,255,0.85);outline:1px solid rgba(15,23,42,0.07);
+    box-shadow:var(--shadow);
+    transform:scale(0.9);opacity:0.5;
+    transition:transform .35s var(--ease-out), opacity .35s var(--ease-out), box-shadow .35s;
+    animation:cardIn .5s var(--spring) backwards;
+  }
+  @keyframes cardIn{from{opacity:0;transform:scale(0.82) translateY(18px)}}
+  .work-card.active{transform:scale(1);opacity:1;box-shadow:0 18px 44px rgba(15,23,42,0.09)}
+  .work-card:hover{box-shadow:0 18px 44px rgba(15,23,42,0.09)}
+
+  .card-cover{position:relative;flex:1 1 auto;min-height:0;overflow:hidden;background:#0b1220}
+  .card-cover img{width:100%;height:100%;object-fit:cover;display:block;transform:scale(1.03);transition:transform .5s var(--ease-out)}
+  .work-card.active .card-cover img{transform:scale(1)}
+  .card-cover::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,18,32,0) 55%,rgba(11,18,32,0.18))}
+
+  .play-badge{
+    position:absolute;inset:0;z-index:2;display:flex;align-items:center;justify-content:center;
+    background:rgba(15,23,42,0.04);
+  }
+  .play-badge .circle{
+    width:54px;height:54px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    background:rgba(255,255,255,0.88);
+    -webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);
+    box-shadow:0 6px 22px rgba(0,0,0,0.22);
+    transition:transform .25s var(--spring);
+  }
+  .play-badge .circle svg{margin-left:3px}
+  .work-card.active .play-badge .circle{animation:breath 2.2s ease-in-out infinite}
+  @keyframes breath{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+
+  .card-body{
+    flex:0 0 auto;padding:14px 16px 16px;background:rgba(255,255,255,0.62);
+    border-top:1px solid rgba(15,23,42,0.04);
+  }
+  .card-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:9px}
+  .tag{
+    font-size:11px;font-weight:600;color:var(--accent);
+    background:rgba(37,99,235,0.08);padding:3px 9px;border-radius:999px;
+  }
+  .card-title{
+    font-size:15px;font-weight:700;line-height:1.35;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+  }
+  .card-desc{
+    font-size:12.5px;color:var(--ink-2);margin-top:6px;line-height:1.5;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+  }
+
+  .empty{
+    width:100%;padding:90px 0 110px;text-align:center;color:var(--ink-2);font-size:14px;
+  }
+  .hidden{display:none}
+
+  /* ============ 视频播放弹窗（iOS 底部 Sheet） ============ */
+  .sheet-mask{
+    position:fixed;inset:0;z-index:100;
+    background:rgba(8,12,24,0.55);
+    -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+    opacity:0;pointer-events:none;transition:opacity .35s;
+  }
+  .sheet-mask.open{opacity:1;pointer-events:auto}
+
+  .player-sheet{
+    position:fixed;left:50%;bottom:0;z-index:101;
+    width:100%;max-width:520px;max-height:92vh;overflow-y:auto;
+    transform:translate(-50%,105%);
+    background:#fff;border-radius:28px 28px 0 0;
+    box-shadow:0 -14px 48px rgba(0,0,0,0.16);
+    transition:transform .38s cubic-bezier(0.32,0.72,0.24,1);
+    -webkit-overflow-scrolling:touch;
+  }
+  .player-sheet.open{transform:translate(-50%,0)}
+  .sheet-handle{width:44px;height:5px;border-radius:3px;background:rgba(15,23,42,0.15);margin:14px auto 12px}
+
+  .player-stage{
+    position:relative;margin:0 18px;border-radius:20px;overflow:hidden;background:#000;
+    aspect-ratio:9/16;max-height:56vh;
+    box-shadow:0 14px 36px rgba(0,0,0,0.16);
+  }
+  .player-stage video{width:100%;height:100%;object-fit:contain;display:block;background:#000}
+  .player-stage:fullscreen{border-radius:0;margin:0;max-height:none;aspect-ratio:auto;width:100vw;height:100vh}
+  .player-stage:fullscreen video{object-fit:contain}
+
+  .big-play{
+    position:absolute;inset:0;z-index:2;display:flex;align-items:center;justify-content:center;
+    background:rgba(0,0,0,0.12);transition:opacity .3s;cursor:pointer;
+  }
+  .big-play.hidden{opacity:0;pointer-events:none}
+  .big-play .circle{
+    width:66px;height:66px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    background:rgba(255,255,255,0.93);box-shadow:0 8px 28px rgba(0,0,0,0.3);
+  }
+  .big-play .circle svg{margin-left:4px}
+  .big-play.pulse .circle{animation:breath 2s ease-in-out infinite}
+
+  .close-btn{
+    position:absolute;top:14px;right:14px;z-index:3;width:34px;height:34px;border-radius:50%;
+    background:rgba(0,0,0,0.45);color:#fff;border:none;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    transition:transform .2s var(--spring), background .25s;
+  }
+  .close-btn:hover{background:rgba(0,0,0,0.65)}
+  .close-btn:active{transform:scale(0.9)}
+
+  .controls{
+    position:absolute;left:0;right:0;bottom:0;z-index:2;
+    display:flex;align-items:center;gap:12px;padding:18px 16px 14px;
+    background:linear-gradient(180deg,rgba(0,0,0,0),rgba(0,0,0,0.55));
+    color:#fff;
+  }
+  .ctrl-btn{
+    flex:0 0 auto;width:36px;height:36px;border:none;background:none;color:#fff;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;border-radius:50%;
+    transition:transform .2s var(--spring), opacity .2s;
+  }
+  .ctrl-btn:hover{opacity:0.85}
+  .ctrl-btn:active{transform:scale(0.9)}
+  .progress{
+    flex:1 1 auto;height:18px;display:flex;align-items:center;cursor:pointer;
+    touch-action:none;min-width:0;
+  }
+  .progress .track{
+    position:relative;width:100%;height:4px;border-radius:2px;background:rgba(255,255,255,0.32);
+  }
+  .progress .bar{
+    position:absolute;left:0;top:0;bottom:0;width:0%;border-radius:2px;background:#fff;
+  }
+  .progress .thumb{
+    position:absolute;top:50%;left:0%;width:12px;height:12px;border-radius:50%;
+    background:#fff;transform:translate(-50%,-50%);
+    box-shadow:0 1px 4px rgba(0,0,0,0.45);
+  }
+  .time{
+    flex:0 0 auto;font-size:12px;font-variant-numeric:tabular-nums;opacity:0.92;
+    min-width:96px;text-align:right;
+  }
+
+  .player-meta{padding:20px 24px calc(34px + env(safe-area-inset-bottom))}
+  .player-meta h3{font-size:18px;font-weight:700;line-height:1.4}
+  .player-meta .tags{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 6px}
+  .player-meta p{font-size:14px;color:var(--ink-2);line-height:1.7}
+
+  /* ============ Footer ============ */
+  footer{
+    position:relative;z-index:1;padding:40px 24px calc(56px + env(safe-area-inset-bottom));
+    text-align:center;max-width:620px;margin:0 auto;
+  }
+  .foot-divider{width:44px;height:4px;border-radius:2px;background:rgba(37,99,235,0.25);margin:0 auto 22px}
+  .intro-card{
+    max-width:520px;margin:0 auto;background:#fff;
+    border:1px solid rgba(15,23,42,0.06);border-radius:24px;
+    box-shadow:0 14px 40px rgba(15,23,42,0.07);
+    padding:36px 28px 32px;text-align:center;
+  }
+  footer h3{font-size:26px;font-weight:800;letter-spacing:0.5px}
+  footer .foot-role{font-size:15px;color:var(--accent);font-weight:600;margin-top:8px}
+  footer p.bio{color:var(--ink-2);font-size:14px;line-height:1.8;margin-top:16px}
+  .foot-contacts{display:flex;justify-content:center;gap:10px;margin-top:22px;flex-wrap:wrap}
+  .btn-resume{
+    margin-top:26px;display:inline-flex;align-items:center;gap:8px;
+    padding:13px 30px;border-radius:999px;border:none;cursor:pointer;
+    background:var(--accent);color:#fff;font-size:14px;font-weight:600;
+    box-shadow:0 10px 24px rgba(37,99,235,0.28);
+    transition:transform .2s var(--spring), box-shadow .25s, opacity .25s;
+  }
+  .btn-resume:hover{box-shadow:0 14px 30px rgba(37,99,235,0.34)}
+  .btn-resume:active{transform:scale(0.95)}
+  .foot-note{margin-top:18px;font-size:11.5px;color:#94A3B8}
+
+  /* ---- Toast ---- */
+  .toast{
+    position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom));z-index:300;
+    transform:translate(-50%,14px);
+    background:rgba(15,23,42,0.92);color:#fff;font-size:13px;padding:10px 18px;border-radius:999px;
+    opacity:0;pointer-events:none;transition:opacity .25s, transform .25s;
+    max-width:82vw;text-align:center;
+  }
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation-duration:0.01ms!important;transition-duration:0.01ms!important}
+  }
+</style>
+</head>
+<body>
+<!-- 资源预载引用：封面图由下方 JS 数据（WORKS）渲染，这里静态列出用于发布时自动收集 assets 目录图片，请与 WORKS 中新增的封面保持同步 -->
+<div hidden aria-hidden="true">
+  <img src="cover-01.jpg" alt="">
+  <img src="cover-02.jpg" alt="">
+  <img src="cover-03.jpg" alt="">
+  <img src="cover-04.jpg" alt="">
+  <img src="cover-05.jpg" alt="">
+  <img src="cover-06.jpg" alt="">
+  <img src="cover-07.jpg" alt="">
+  <img src="cover-08.jpg" alt="">
+  <img src="cover-09.jpg" alt="">
+  <img src="cover-10.jpg" alt="">
+  <img src="cover-11.jpg" alt="">
+  <img src="cover-12.jpg" alt="">
+  <img src="cover-13.jpg" alt="">
+  <img src="cover-14.jpg" alt="">
+  <img src="cover-15.jpg" alt="">
+  <img src="cover-16.jpg" alt="">
+  <img src="cover-17.jpg" alt="">
+</div>
+<div class="bg-glow"></div>
+
+<!-- ===== 顶部 Header ===== -->
+<header>
+  <div class="header-inner">
+    <div class="brand">
+      <div class="name" id="profileName">周子</div>
+      <div class="role" id="profileRole">买量视频设计师</div>
+    </div>
+    <div class="contacts" id="contacts"></div>
+  </div>
+</header>
+
+<main>
+  <!-- ===== 分类 Tab ===== -->
+  <nav class="tabs">
+    <div class="tabs-inner" id="tabsInner"></div>
+  </nav>
+
+  <!-- ===== 卡片滑动区 ===== -->
+  <section class="carousel-section">
+    <div class="carousel" id="carousel"></div>
+    <div class="empty hidden" id="emptyState">该分类下暂无作品</div>
+  </section>
+</main>
+
+<!-- ===== Footer ===== -->
+<footer>
+  <div class="foot-divider"></div>
+  <div class="intro-card">
+    <h3 id="footName"></h3>
+    <div class="foot-role" id="footRole"></div>
+    <p class="bio" id="footBio"></p>
+    <div class="foot-contacts" id="footContacts"></div>
+    <button class="btn-resume" id="btnResume">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      下载简历
+    </button>
+  </div>
+  <div class="foot-note">© <span id="footYear"></span> 周子 · 视频作品集</div>
+</footer>
+
+<!-- ===== 视频播放弹窗 ===== -->
+<div class="sheet-mask" id="sheetMask"></div>
+<div class="player-sheet" id="playerSheet">
+  <div class="sheet-handle"></div>
+  <div class="player-stage" id="playerStage">
+    <video id="playerVideo" playsinline webkit-playsinline preload="metadata"></video>
+    <div class="big-play pulse" id="bigPlay">
+      <div class="circle">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="#2563EB"><path d="M8 5.5v13l11-6.5z"/></svg>
+      </div>
+    </div>
+    <button class="close-btn" id="closeBtn" aria-label="关闭">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <div class="controls" id="controls">
+      <button class="ctrl-btn" id="btnPlay" aria-label="播放/暂停">
+        <svg id="iconPlay" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l11-6.5z"/></svg>
+        <svg id="iconPause" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
+      </button>
+      <div class="progress" id="progressBar">
+        <div class="track"><div class="bar" id="progressBarFill"></div><div class="thumb" id="progressThumb"></div></div>
+      </div>
+      <span class="time" id="timeText">00:00 / 00:00</span>
+      <button class="ctrl-btn" id="btnFullscreen" aria-label="全屏">
+        <svg id="iconExpand" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg>
+        <svg id="iconCompress" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M8 3v3a2 2 0 0 1-2 2H3"/><path d="M21 8h-3a2 2 0 0 1-2-2V3"/><path d="M3 16h3a2 2 0 0 1 2 2v3"/><path d="M16 21v-3a2 2 0 0 1 2-2h3"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="player-meta">
+    <h3 id="playerTitle"></h3>
+    <div class="tags" id="playerTags"></div>
+    <p id="playerDesc"></p>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* =============================================================
+   一、作品集配置 —— 在这里替换成你自己的信息
+   =============================================================
+   1. 封面图：把图片文件放进本页面同目录的 assets/ 文件夹，
+      再把 cover 改成 "assets/你的封面.jpg"（或直接填图片链接）
+   2. 视频：把视频文件放进 assets/ 后用相对路径，
+      或用你的在线视频直链（如 B站/阿里云OSS 等 mp4 地址），
+      把 videoUrl 改成对应地址
+   3. 分类：category 数组里的名称必须与下面 CATEGORIES 一致，
+      一个作品可属于多个分类，例如 ['AE类','UE类']
+   4. 标签 tags、标题 title、描述 description 直接改对应字段
+   5. 新增封面图后，记得把图片文件放进 assets/ 文件夹，
+      并在页面顶部"资源预载引用"区域同步加一行 <img src="assets/你的封面.jpg">
+      （用于发布时自动收集图片资源）
+   ============================================================= */
+const PROFILE = {
+  name: '周子',
+  role: '买量视频设计师',
+  email: '2283808009@qq.com',        // 改成你的邮箱
+  wechat: '19854738432',             // 改成你的微信号
+  phone: '198-5473-8432',            // 改成你的电话
+  bio: '擅长买量视频设计与制作，覆盖 AE 后期包装、UE 引擎渲染、真人实拍剪辑与 AI 生成全流程。' +
+       '不同于内容创作的反复精修打磨，买量的核心是洞察并读懂用户需求，用用户接纳的沟通方式，传递产品价值。',
+  resumeUrl: 'resume.pdf'      // 简历 PDF 链接，点击按钮直接下载
+};
+
+const CATEGORIES = ['全部', 'AE类', 'UE类', '真人实拍', 'AI类'];
+
+const WORKS = [
+  /* ================= AE 类（4 个） ================= */
+  {
+    id: 1,
+    category: ['AE类'],
+    cover: 'cover-02.jpg',
+    videoUrl: 'sa_240920_ZPP_模版互动_Jackaroo_916.mp4',
+    tags: ['AE牌局', '牌局展示'],
+    title: '模版互动 · Jackaroo',
+    description: '模版互动玩法演示，AE 包装制作。发行地区:中东。游戏版本更新节点模板化创意素材，结合版本上线流量窗口期设计素材叙事框架，精准承接版本热度；素材上线后新增提升 80%，沉淀为可复用的标准化素材范式，支撑后续迭代快速复制产出。'
+  },
+  {   
+    id: 2,
+    category: ['AE类'],
+    cover: 'cover-01.jpg',
+    videoUrl: 'bz_250723_ZPP_cacheta_916.mp4',
+    tags: ['牌局展示'],
+    title: '上手好牌· Truco',
+    description: '牌局玩法素材，AE K帧包装制作。发行地区:南美。承接新玩法前置验证需求，制作配套测试素材，辅助评估玩法商业化与用户接受潜力；回收数据反馈较差，综合评估后暂缓落地，不内嵌至正式版本。'
+  },
+  {
+    id: 3,
+    category: ['AE类'],
+    cover: 'cover-03.jpg',
+    videoUrl: 'sa_250813_ZPP_猫和老鼠皮肤牌局_jackaroo_916.mp4',
+    tags: ['AE'],
+    title: '猫和老鼠皮肤牌局· jackroot',
+    description: '素材用于**前置用户兴趣测试**，验证该 IP 皮肤的市场接受度；投放测试后用户反馈未达预期，项目决策停止 IP 合作。'
+  },
+  {
+    id: 4,
+    category: ['AE类'],
+    cover: 'cover-04.jpg',
+    videoUrl: 'tr_250620_ZPP_水上牌局_916.mp4',
+    tags: ['AE牌局'],
+    title: '水上牌局· okey',
+    description: '水上泳池场景牌局素材 AE 包装制作，投放测试泳池场景转化表现；数据效果中等，作为 B 面素材持续迭代优化，用于素材轮换，降低用户观看疲劳。'
+  },
+
+  /* ================= AI 类（5 个） ================= */
+  {
+    id: 5,
+    category: ['AI类'],
+    cover: 'cover-05.jpg',
+    videoUrl: 'bz_250912_ZPP_AI跳舞_truco_916.mp4',
+    tags: ['AI生成', '跳舞素材'],
+    title: 'AI 跳舞 · Truco',
+    description: '抓取海外流行热点做创意切入点，通过 AI 辅助快速产出视觉资产，再经 AE 整合包装成投放素材，低成本验证热点创意方向，丰富创意供给。'
+  },
+  {
+    id: 6,
+    category: ['AI类'],
+    cover: 'cover-06.jpg',
+    videoUrl: 'iq_260313_ZPP_搓手口播_916.mp4',
+    tags: ['AI生成', '口播素材'],
+    title: '搓手口播',
+    description: '面向海外市场建立 “流行舞蹈元素 + AI 辅助真人” 的本地化创意路径，通过拆解海外热门舞蹈动作、音乐节奏和平台表达形式，生成无需真人出镜的投放素材。该方案减少真人拍摄依赖，缩短素材制作周期，同时提升创意方向的多样性与本地化适配效率。'
+  },
+  {
+    id: 7,
+    category: ['AI类'],
+    cover: 'cover-07.jpg',
+    videoUrl: 'sa_251031_ZPP_车窗卖点_dash_916.mp4',
+    tags: ['AI生成', '卖点素材'],
+    title: '车窗卖点 · Dash',
+    description: '基于真人实拍素材进行后期换脸及 AI 特效优化，同类效果在无 AI 工具加持下合成周期较长；借助 AI 快速生成、优化视频内容，在更短周期内完成高复杂度动态素材制作。'
+  },
+  {
+    id: 8,
+    category: ['AI类'],
+    cover: 'cover-08.jpg',
+    videoUrl: 'tr_250718_ZPP_ai短剧_916.mp4',
+    tags: ['AI生成', '短剧'],
+    title: 'AI 短剧 · okey',
+    description: '面向土耳其出海市场，以霸总逆袭热门赛道为方向，借助 AI 快速产出短剧剧情与配套视觉素材，适配本土用户的观剧偏好；依托 AI 缩短脚本和画面试制周期，配合 AE 完成成片包装，低成本测试短剧素材方向效果。'
+  },
+  {
+    id: 9,
+    category: ['AI类'],
+    cover: 'cover-09.jpg',
+    videoUrl: 'tr_260316_ZPP_ai换场景01_916.mp4',
+    tags: ['AI生成', ],
+    title: 'AI 换场景 · okey',
+    description: '利用 AI 生成真实感比赛场景作为投放前贴素材，快速搭建具有临场感和竞争氛围的开场画面;可快速产出多版本开场画面，高效测试不同赛事氛围的视觉表现。'
+  },
+
+  /* ================= UE 类（4 个） ================= */
+  {
+    id: 10,
+    category: ['UE类'],
+    cover: 'cover-10.jpg',
+    videoUrl: 'sa_241226_ZPP_3d制作2_liar_916.mp4',
+    tags: ['UE渲染'],
+    title: '3D 制作 · Liar',
+    description: '依托 UE 引擎落地 Liar 玩法创意素材，配合项目发行节点上线投放；该素材在同期所有测试物料中新增增量表现最佳，作为标杆模板沉淀，支撑后续持续复制产出。'
+  },
+  {
+    id: 11,
+    category: ['UE类'],
+    cover: 'cover-11.jpg',
+    videoUrl: 'sa_250410_ZPP_经营02_916.mp4',
+    tags: ['UE渲染', '经营玩法'],
+    title: '经营玩法 · SLG',
+    description: '负责公司 SLG 项目模拟经营玩法测试素材制作，验证 SLG + 模拟经营融合玩法的市场接受度；该素材在同期测试物料中消耗排名第一，为玩法评估提供核心数据参考。'
+  },
+  {
+    id: 12,
+    category: ['UE类'],
+    cover: 'cover-12.jpg',
+    videoUrl: 'sa_260204_ZPP_问答游戏模版B-2_quiz_916.mp4',
+    tags: ['UE渲染', '问答模版'],
+    title: '问答游戏模版 · Jackaroo',
+    description: '基于 UE 引擎开发 3D 化问答玩法素材模板，区别于传统图文问答，用游戏化交互提升趣味性；同步测试差异化镜头视角方案，经投放验证该视角效果数据未达预期，留存测试结论，规避后续同类视觉踩坑。'
+  },
+  {
+    id: 13,
+    category: ['UE类'],
+    cover: 'cover-13.jpg',
+    videoUrl: '微信视频2026-10-25_172204_777.mp4',
+    tags: ['UE素材'],
+    title: '剧情动画·小小蚁国',
+    description: '产出剧情动画原始素材，主版本投放消耗一般；保留完整动画资产用于二次开发，经 AE 剪辑提炼高光片段后，衍生素材在同期物料中消耗排名前三，沉淀可二次拆解复用的剧情素材资产。'
+  },
+
+  /* ================= 真人拍摄（3 个） ================= */
+  {
+    id: 14,
+    category: ['真人实拍'],
+    cover: 'cover-14.jpg',
+    videoUrl: 'sa_240802_ZPP_实拍教学_jackaroo_916.mp4',
+    tags: ['实拍剪辑'],
+    title: '实拍教学 · Jackaroo',
+    description: '实拍教学类素材，真人实拍+后期剪辑。'
+  },
+  {
+    id: 15,
+    category: ['真人实拍'],
+    cover: 'cover-15.jpg',
+    videoUrl: 'tr_241121_ZPP_争相安利_916.mp4',
+    tags: ['实拍剪辑', '安利素材'],
+    title: '争相安利· okey',
+    description: '以项目优秀素材方向新闻为内容切入点，策划实拍素材脚本，借助卖点口播 + 情景对比冲突强化情绪吸引力；该创意模板生命力强，稳定投放超一年，作为主力素材范式，持续更换演员迭代产出新物料。'
+  },
+  {
+    id: 16,
+    category: ['真人实拍'],
+    cover: 'cover-16.jpg',
+    videoUrl: 'tr_250306_ZPP_14张牌小人骂人迭代_916.mp4',
+    tags: ['实拍剪辑', '玩法素材'],
+    title: '14张牌小人骂人· okey',
+    description: '对标休闲游戏市场爆款创意，落地 14 张牌小人骂人 okey 素材，融合自身游戏玩法进行二次创作，拿到优秀投放效果；持续基于数据迭代多个衍生玩法版本，验证该创意赛道可行性，测试留存达成项目目标。'
+  },
+  {
+    id: 17,
+    category: ['真人实拍'],
+    cover: 'cover-17.jpg',
+    videoUrl: 'tr_250725_ZPP_贴在手上天胡_916.mp4',
+    tags: ['实拍剪辑', '玩法素材'],
+    title: '贴在手上天胡· okey',
+    description: '挖掘本地社区原生 UGC 内容方向，参考用户自发分享的作弊视频的叙事、镜头与表达风格，复刻原生感创意并落地为产品投放素材，拉近和目标用户的距离。'
+  }
+];
+
+/* =============================================================
+   二、页面渲染与交互逻辑（一般无需修改）
+   ============================================================= */
+const $ = (id) => document.getElementById(id);
+const carousel = $('carousel');
+const tabsInner = $('tabsInner');
+const emptyState = $('emptyState');
+const workById = new Map(WORKS.map(w => [w.id, w]));
+
+let activeCat = '全部';
+let moved = false;
+
+/* ---------- Toast ---------- */
+let toastTimer = null;
+function toast(msg){
+  const t = $('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 1800);
+}
+
+/* ---------- 复制到剪贴板 ---------- */
+function copyText(text, msg){
+  const done = () => toast(msg || '已复制');
+  if (navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopy(text, done));
+  } else {
+    fallbackCopy(text, done);
+  }
+}
+function fallbackCopy(text, done){
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.cssText = 'position:fixed;opacity:0;left:-9999px';
+  document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand('copy'); done(); } catch (e) { toast('复制失败，请手动复制'); }
+  ta.remove();
+}
+
+/* ---------- SVG 图标 ---------- */
+const ICONS = {
+  mail: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="m2 7 10 7 10-7"/></svg>',
+  wechat: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>',
+  phone: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>'
+};
+
+/* ---------- Header / Footer 渲染 ---------- */
+function renderProfile(){
+  $('profileName').textContent = PROFILE.name;
+  $('profileRole').textContent = PROFILE.role;
+  $('footName').textContent = PROFILE.name;
+  $('footRole').textContent = PROFILE.role;
+  $('footBio').textContent = PROFILE.bio;
+  $('footYear').textContent = new Date().getFullYear();
+  document.title = PROFILE.name + ' · ' + PROFILE.role + ' · 视频作品集';
+
+  const items = [
+    { key: 'email', label: PROFILE.email, title: '复制邮箱', icon: ICONS.mail, copy: PROFILE.email, msg: '邮箱已复制' },
+    { key: 'wechat', label: PROFILE.wechat, title: '复制微信号', icon: ICONS.wechat, copy: PROFILE.wechat, msg: '微信号已复制' },
+    { key: 'phone', label: PROFILE.phone, title: '复制电话', icon: ICONS.phone, copy: PROFILE.phone, msg: '电话已复制' }
+  ];
+  const btn = (it) =>
+    '<button class="contact-btn" data-copy="' + it.copy + '" data-msg="' + it.msg + '" title="' + it.title + '">' +
+    it.icon + '<span class="label">' + it.label + '</span></button>';
+
+  $('contacts').innerHTML = items.map(btn).join('');
+  $('footContacts').innerHTML = items.map(btn).join('');
+}
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-copy]');
+  if (btn) copyText(btn.dataset.copy, btn.dataset.msg);
+});
+
+/* ---------- 分类 Tab ---------- */
+const indicator = document.createElement('div');
+indicator.className = 'tab-indicator';
+tabsInner.appendChild(indicator);
+
+function renderTabs(){
+  tabsInner.innerHTML = '';
+  CATEGORIES.forEach((cat, i) => {
+    const b = document.createElement('button');
+    b.className = 'tab' + (cat === activeCat ? ' active' : '');
+    b.dataset.cat = cat;
+    b.textContent = cat;
+    b.style.animationDelay = (i * 40) + 'ms';
+    tabsInner.appendChild(b);
+  });
+  tabsInner.appendChild(indicator);
+  moveIndicator();
+}
+function moveIndicator(){
+  const active = tabsInner.querySelector('.tab.active');
+  if (!active) return;
+  indicator.style.left = active.offsetLeft + 'px';
+  indicator.style.width = active.offsetWidth + 'px';
+}
+tabsInner.addEventListener('click', (e) => {
+  const b = e.target.closest('.tab');
+  if (!b || b.dataset.cat === activeCat) return;
+  activeCat = b.dataset.cat;
+  tabsInner.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t === b));
+  moveIndicator();
+  b.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+  renderWorks();
+});
+
+/* ---------- 卡片渲染 ---------- */
+function renderWorks(){
+  const list = activeCat === '全部' ? WORKS : WORKS.filter(w => w.category.includes(activeCat));
+  emptyState.classList.toggle('hidden', list.length > 0);
+  carousel.innerHTML = '';
+  if (!list.length) return;
+  list.forEach((w, i) => {
+    const card = document.createElement('div');
+    card.className = 'work-card' + (i === 0 ? ' active' : '');
+    card.dataset.id = w.id;
+    card.style.animationDelay = (i * 60) + 'ms';
+    const tags = (w.tags || []).map(t => '<span class="tag">' + esc(t) + '</span>').join('');
+    card.innerHTML =
+      '<div class="card-cover">' +
+        '<img src="' + esc(w.cover) + '" alt="' + esc(w.title) + '" loading="lazy">' +
+        '<div class="play-badge"><div class="circle">' +
+          '<svg width="22" height="22" viewBox="0 0 24 24" fill="#2563EB"><path d="M8 5.5v13l11-6.5z"/></svg>' +
+        '</div></div>' +
+      '</div>' +
+      '<div class="card-body">' +
+        '<div class="card-tags">' + tags + '</div>' +
+        '<h3 class="card-title">' + esc(w.title) + '</h3>' +
+        '<p class="card-desc">' + esc(w.description || '') + '</p>' +
+      '</div>';
+    carousel.appendChild(card);
+  });
+  carousel.scrollLeft = 0;
+  updateCardStates();
+}
+function esc(s){
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+/* ---------- 卡片居中缩放（当前卡片放大、两侧缩小） ---------- */
+let cardRaf = null;
+function updateCardStates(){
+  const cards = carousel.querySelectorAll('.work-card');
+  if (!cards.length) return;
+  const vpCenter = window.innerWidth / 2;
+  let best = null, bestD = Infinity;
+  cards.forEach(c => {
+    const r = c.getBoundingClientRect();
+    const cX = r.left + r.width / 2;
+    const d = Math.abs(cX - vpCenter);
+    const scale = Math.max(0.9, 1 - d / (r.width * 3.2));
+    const op = Math.max(0.45, 1 - d / (r.width * 1.9));
+    c.style.transform = 'scale(' + scale + ')';
+    c.style.opacity = op;
+    c.classList.toggle('active', d < r.width * 0.25);
+    if (d < bestD) { bestD = d; best = c; }
+  });
+}
+carousel.addEventListener('scroll', () => {
+  if (cardRaf) return;
+  cardRaf = requestAnimationFrame(() => { updateCardStates(); cardRaf = null; });
+}, { passive: true });
+window.addEventListener('resize', updateCardStates);
+
+/* ---------- 桌面鼠标拖拽 + 惯性吸附 ---------- */
+let isDown = false, startX = 0, startScroll = 0, lastX = 0, lastT = 0, vel = 0, inertiaRaf = null;
+
+carousel.addEventListener('pointerdown', (e) => {
+  if (e.pointerType !== 'mouse') return;
+  isDown = true; moved = false; vel = 0;
+  startX = e.clientX; startScroll = carousel.scrollLeft;
+  lastX = e.clientX; lastT = performance.now();
+  carousel.classList.add('dragging');
+});
+carousel.addEventListener('pointermove', (e) => {
+  if (!isDown) return;
+  const dx = e.clientX - startX;
+  if (Math.abs(dx) > 4) moved = true;
+  const now = performance.now(), dt = now - lastT;
+  if (dt > 0) { vel = (e.clientX - lastX) / dt; lastX = e.clientX; lastT = now; }
+  carousel.scrollLeft = startScroll - dx;
+});
+function endDrag(){
+  if (!isDown) return;
+  isDown = false;
+  carousel.classList.remove('dragging');
+  const v = Math.max(-42, Math.min(42, vel * 14));
+  if (moved && Math.abs(v) > 0.6) {
+    cancelAnimationFrame(inertiaRaf);
+    const step = () => {
+      carousel.scrollLeft -= v;
+      v *= 0.94;
+      if (Math.abs(v) > 0.3) inertiaRaf = requestAnimationFrame(step);
+    };
+    inertiaRaf = requestAnimationFrame(step);
+  }
+}
+carousel.addEventListener('pointerup', endDrag);
+carousel.addEventListener('pointercancel', endDrag);
+
+/* ---------- 点击卡片 → 打开播放器 ---------- */
+carousel.addEventListener('click', (e) => {
+  if (moved) { moved = false; return; }
+  const card = e.target.closest('.work-card') ||
+               (document.elementFromPoint(e.clientX, e.clientY) || document.body).closest('.work-card');
+  if (!card) return;
+  const work = workById.get(Number(card.dataset.id));
+  if (work) openPlayer(work);
+});
+
+/* ---------- 视频播放器（iOS Bottom Sheet） ---------- */
+const sheet = $('playerSheet');
+const mask = $('sheetMask');
+const video = $('playerVideo');
+const stage = $('playerStage');
+let currentWork = null;
+let isSeeking = false;
+
+function openPlayer(w){
+  currentWork = w;
+  video.src = w.videoUrl;
+  video.poster = w.cover;
+  $('playerTitle').textContent = w.title;
+  $('playerDesc').textContent = w.description || '';
+  $('playerTags').innerHTML = (w.tags || []).map(t => '<span class="tag">' + esc(t) + '</span>').join('');
+  $('timeText').textContent = '00:00 / 00:00';
+  setProgress(0);
+  mask.classList.add('open');
+  sheet.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  video.load();
+  video.play().then(updatePlayUI).catch(() => updatePlayUI());
+  updatePlayUI();
+}
+function closePlayer(){
+  video.pause();
+  mask.classList.remove('open');
+  sheet.classList.remove('open');
+  document.body.style.overflow = '';
+  setTimeout(() => {
+    video.removeAttribute('src');
+    video.load();
+  }, 420);
+}
+$('closeBtn').addEventListener('click', closePlayer);
+mask.addEventListener('click', closePlayer);
+
+function updatePlayUI(){
+  const playing = !video.paused && !video.ended;
+  $('iconPlay').style.display = playing ? 'none' : 'block';
+  $('iconPause').style.display = playing ? 'block' : 'none';
+  $('bigPlay').classList.toggle('hidden', playing);
+  $('bigPlay').classList.toggle('pulse', !playing);
+}
+function togglePlay(){
+  if (video.paused) video.play().then(updatePlayUI).catch(() => {});
+  else video.pause();
+  updatePlayUI();
+}
+$('btnPlay').addEventListener('click', togglePlay);
+$('bigPlay').addEventListener('click', (e) => { e.stopPropagation(); togglePlay(); });
+video.addEventListener('click', (e) => {
+  if (e.target === video) togglePlay();
+});
+video.addEventListener('play', updatePlayUI);
+video.addEventListener('pause', updatePlayUI);
+video.addEventListener('ended', updatePlayUI);
+
+function fmt(t){
+  if (!isFinite(t)) return '00:00';
+  const m = Math.floor(t / 60), s = Math.floor(t % 60);
+  return (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+}
+function setProgress(pct){
+  $('progressBarFill').style.width = pct + '%';
+  $('progressThumb').style.left = pct + '%';
+}
+function updateProgress(){
+  const d = video.duration || 0;
+  const pct = d ? (video.currentTime / d) * 100 : 0;
+  setProgress(pct);
+  $('timeText').textContent = fmt(video.currentTime) + ' / ' + fmt(d);
+}
+video.addEventListener('timeupdate', updateProgress);
+video.addEventListener('loadedmetadata', updateProgress);
+video.addEventListener('progress', updateProgress);
+
+const progressBar = $('progressBar');
+function seekFromEvent(e){
+  const r = progressBar.getBoundingClientRect();
+  const ratio = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
+  if (video.duration) video.currentTime = ratio * video.duration;
+  setProgress(ratio * 100);
+  $('timeText').textContent = fmt(video.currentTime) + ' / ' + fmt(video.duration || 0);
+}
+progressBar.addEventListener('pointerdown', (e) => {
+  isSeeking = true;
+  seekFromEvent(e);
+  progressBar.setPointerCapture(e.pointerId);
+});
+progressBar.addEventListener('pointermove', (e) => {
+  if (isSeeking) seekFromEvent(e);
+});
+progressBar.addEventListener('pointerup', () => { isSeeking = false; });
+progressBar.addEventListener('pointercancel', () => { isSeeking = false; });
+
+$('btnFullscreen').addEventListener('click', () => {
+  if (document.fullscreenElement) document.exitFullscreen();
+  else if (stage.requestFullscreen) stage.requestFullscreen();
+});
+document.addEventListener('fullscreenchange', () => {
+  const fs = !!document.fullscreenElement;
+  $('iconExpand').style.display = fs ? 'none' : 'block';
+  $('iconCompress').style.display = fs ? 'block' : 'none';
+});
+
+/* ---------- 下载简历 ---------- */
+$('btnResume').addEventListener('click', () => {
+  if (!PROFILE.resumeUrl) { toast('简历文档待上传，可通过微信联系获取'); return; }
+  // 本地打开（file://）时浏览器不支持 download，改为新标签预览；发布到线上后自动直接下载
+  if (location.protocol === 'file:') { window.open(PROFILE.resumeUrl, '_blank'); return; }
+  const a = document.createElement('a');
+  a.href = PROFILE.resumeUrl;
+  a.download = '周子_买量视频设计师_简历.pdf';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+});
+
+/* ---------- 初始化 ---------- */
+renderProfile();
+renderTabs();
+renderWorks();
+</script>
+</body>
+</html>
